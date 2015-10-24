@@ -4,6 +4,7 @@ import numpy as np
 import sys
 
 # http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
+#hello
 
 print "Reading image..."
 img = cv2.imread(sys.argv[1], 0)
