@@ -10,11 +10,10 @@ img = cv2.imread(sys.argv[1], 0)
 img2 = cv2.imread(sys.argv[1], 1)
 
 #
-# edges = cv2.Canny(img2,200,400)
+# edges = cv2.Canny(img2, 200, 400)
 # cv2.imshow('detected circles', edges)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
-
 
 print "Blurring image..."
 blurred = cv2.medianBlur(img, 5)
@@ -30,21 +29,24 @@ print "Greyscaling image..."
 
 print "Detecting circles..."
 
-circles = cv2.HoughCircles(blurred, cv2.cv.CV_HOUGH_GRADIENT, 1, 20,
-                           param1=50, param2=100, minRadius=10, maxRadius=150)
+for i in range(0, 3):
+    param1 = 50 + i * 10
+    param2 = 70 + i * 10
+    circles = cv2.HoughCircles(blurred, cv2.cv.CV_HOUGH_GRADIENT, 1, 20,
+                               param1=param1, param2=param2, minRadius=10, maxRadius=150)
 
-print "Converting to uint16..."
+    print "Converting to uint16..."
 
-circles = np.uint16(np.around(circles))
+    circles = np.uint16(np.around(circles))
 
-print "Found {} circles".format(len(circles))
+    print "Found {} circles".format(len(circles))
 
-for i in circles[0, :]:
-    print "Drawing circle {}".format(i)
-    # draw the outer circle
-    cv2.circle(img2, (i[0], i[1]), i[2], (0, 255, 0), 2)
-    # draw the center of the circle
-    cv2.circle(img2, (i[0], i[1]), 2, (0, 0, 255), 3)
+    for i in circles[0, :]:
+        print "Drawing circle {}".format(i)
+        # draw the outer circle
+        cv2.circle(img2, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        # draw the center of the circle
+        cv2.circle(img2, (i[0], i[1]), 2, (0, 0, 255), 3)
 
 cv2.imshow('detected circles', img2)
 cv2.waitKey(0)

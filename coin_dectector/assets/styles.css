@@ -1,0 +1,26 @@
+.image-viewer img {
+    position: relative;
+    width: 100%;
+}
+
+#controls {
+    width: 35%;
+}
+
+#param1-range-value, #param2-range-value {
+    margin-left: 10px;
+}
+
+#image-overlay {
+    display: none;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 30%;
+}
