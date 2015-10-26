@@ -3,60 +3,6 @@ import cv2.cv
 import numpy as np
 import time
 
-COLOR_TOLERANCE = 25
-
-# GOLD = (207, 176, 79)
-GOLD = (51, 255, 255)
-GOLD_MIN = (41, 100, 100)
-GOLD_MAX = (61, 255, 255)
-# GOLD = (255, 215, 0)
-
-SILVER = (0, 0, int(255 * 0.75))
-SILVER_MIN = (0, 0, SILVER[2] * 0.75)
-SILVER_MAX = (10, 100, SILVER[2] * 1.25)
-
-# SILVER = (192,192, 192)
-
-# COPPER = (190, 190, 190)
-COPPER = (56, 90, 150)
-
-
-# COPPER = (184, 155, 51)
-
-
-def color_distance(color, reference_color):
-    square_distance = (color[0] - reference_color[0]) ** 2 + \
-                      (color[1] - reference_color[1]) ** 2
-    # (color[2] - reference_color[2]) ** 2
-
-    # square_distance = ((color[0] - reference_color[0]) * 0.299) ** 2 + \
-    #                   ((color[1] - reference_color[1]) * 0.587) ** 2 + \
-    #                   ((color[2] - reference_color[2]) * 0.114) ** 2
-
-    return square_distance
-
-
-def classify_coin_color(color):
-    coin_colors = [GOLD, SILVER]
-    distances = []
-    for coin_color in coin_colors:
-        distances.append(color_distance(color, coin_color))
-    # print "DISTANCES", distances
-    smallest_index = distances.index(min(distances))
-    return coin_colors[smallest_index]
-
-
-def classify_coin_color_str(color):
-    classified_color = classify_coin_color(color)
-    # print "CLASSIFIED", classified_color
-    if classified_color == GOLD:
-        return "GOLD"
-    elif classified_color == SILVER:
-        return "SILVER"
-    elif classified_color == COPPER:
-        return "COPPER"
-    return "UNKNOWN"
-
 
 def square_distance(x, x1, y, y1):
     # Distance formula: distance = sqrt((x-x1)^2+(y-y1)^2))
@@ -99,6 +45,7 @@ def detect(src_image_path, param1, param2, debug=False):
 
     allcircles = []
 
+    print "HOUGH CIRCLES"
     magic_values = [1.3]
     for magic_value in magic_values:
         detected_circles = cv2.HoughCircles(blurred, cv2.cv.CV_HOUGH_GRADIENT,
@@ -107,6 +54,8 @@ def detect(src_image_path, param1, param2, debug=False):
         allcircles.append(detected_circles)
 
     cnt = 1
+
+    print "PROCESSING CIRCLES"
 
     for circles in allcircles:
         circles = np.uint16(np.around(circles))
@@ -142,7 +91,6 @@ def detect(src_image_path, param1, param2, debug=False):
             maskR3 = dR3 < radius_border_point ** 2
             maskR4 = dR4 < radius_border_point ** 2
 
-
             cntgold = 0
             cntsilver = 0
 
@@ -152,15 +100,22 @@ def detect(src_image_path, param1, param2, debug=False):
             cntRgold = 0
             cntRsilver = 0
 
+            def x_range(x, y, r):
+                return x - r, (x - r) + (2 * r)
 
-            for a in range(0, width):
-                for b in range(0, height):
+            def y_range(x, y, r):
+                return y - r, (y - r) + (2 * r)
+
+            for a in range(*x_range(*i)):
+                for b in range(*y_range(*i)):
+
                     if mask[b, a]:
                         output[b, a] = color_img[b, a]
                         if mask_gold[b, a]:
                             cntgold += 1
                         elif mask_silver[b, a]:
                             cntsilver += 1
+
                     if maskC[b, a]:
                         if mask_gold[b, a]:
                             cntCgold += 1
@@ -192,9 +147,11 @@ def detect(src_image_path, param1, param2, debug=False):
             center_color = "GOLD"
             if cntCgold < cntCsilver:
                 center_color = "SILVER"
+
             border_color = "GOLD"
             if cntRgold < cntRsilver:
                 border_color = "SILVER"
+
             coin_type = determine_coin(center_color, border_color)
 
             print "CIRLCE", cnt

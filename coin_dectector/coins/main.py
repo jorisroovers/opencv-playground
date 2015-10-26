@@ -1,3 +1,3 @@
-import detector2
+import detector3
 
-detector2.detect('assets/coins3.png', 23, 23)
+detector3.detect('assets/coins.png', 23, 23, debug=True)
